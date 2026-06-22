@@ -1,4 +1,4 @@
-import { questionBank, modelDescriptions, type Question } from '../data/questionBank';
+import { questionBank, modelDescriptions, modelComparisons, type Question } from '../data/questionBank';
 import { SeededRandom, generateSeed } from '../utils/random';
 import { OrigamiSVG } from '../components/OrigamiSVG';
 import { Model3DViewer } from '../components/Model3DViewer';
@@ -97,6 +97,36 @@ export class OrigamiGame {
           <button class="btn btn-next" id="next-btn" style="display: none;">➡️ 下一题</button>
           <div class="result-message" id="result-message"></div>
         </div>
+
+        <div class="model-analysis-panel" id="model-analysis-panel" style="display: none;">
+          <div class="analysis-header">
+            <span class="analysis-icon">🔍</span>
+            <span class="analysis-title">目标模型解析</span>
+            <button class="analysis-close-btn" id="analysis-close-btn">✕</button>
+          </div>
+          <div class="analysis-body">
+            <div class="analysis-section correct-model-section">
+              <div class="analysis-section-title">📐 正确模型：<span id="analysis-correct-name"></span></div>
+              <div class="analysis-subsection">
+                <div class="analysis-subsection-label">外形特点</div>
+                <ul class="analysis-feature-list" id="analysis-features"></ul>
+              </div>
+              <div class="analysis-subsection">
+                <div class="analysis-subsection-label">折叠方式</div>
+                <p class="analysis-fold-desc" id="analysis-fold-desc"></p>
+              </div>
+              <div class="analysis-subsection">
+                <div class="analysis-subsection-label">关键辨识特征</div>
+                <div class="analysis-key-ids" id="analysis-key-ids"></div>
+              </div>
+            </div>
+            <div class="analysis-section comparison-section" id="comparison-section" style="display: none;">
+              <div class="analysis-section-title">⚖️ 与你选择的模型对比</div>
+              <p class="comparison-summary" id="comparison-summary"></p>
+              <ul class="comparison-diff-list" id="comparison-diff-list"></ul>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 
@@ -110,6 +140,9 @@ export class OrigamiGame {
     this.resetBtn?.addEventListener('click', () => this.resetFolds());
     this.hintBtn?.addEventListener('click', () => this.showHint());
     this.nextBtn?.addEventListener('click', () => this.nextQuestion());
+
+    const closeAnalysisBtn = this.container.querySelector('#analysis-close-btn');
+    closeAnalysisBtn?.addEventListener('click', () => this.hideAnalysisPanel());
   }
 
   private startGame(): void {
@@ -135,6 +168,7 @@ export class OrigamiGame {
     this.setupFoldState(question);
     this.setupModelOptions(question);
     this.hideMessage();
+    this.hideAnalysisPanel();
     this.updateSubmitState();
 
     if (this.nextBtn) {
@@ -278,10 +312,11 @@ export class OrigamiGame {
       this.showMessage(`🎉 答对了！获得 ${baseScore + stepsBonus} 分`, 'success');
     } else {
       this.state.gameStatus = 'lost';
-      this.showMessage('😅 答错了，再试试吧！正确答案已高亮', 'error');
+      this.showMessage('😅 答错了，正确答案已高亮', 'error');
       this.highlightCorrectAnswer();
     }
 
+    this.showAnalysisPanel(this.state.currentQuestion.correctModelId, this.state.selectedModelId, isCorrect);
     this.updateScoreDisplay();
 
     if (this.nextBtn) {
@@ -323,6 +358,7 @@ export class OrigamiGame {
     }
 
     this.hideMessage();
+    this.hideAnalysisPanel();
     this.updateStepsDisplay();
   }
 
@@ -424,6 +460,84 @@ export class OrigamiGame {
     const resultEl = this.container.querySelector('#result-message') as HTMLElement;
     if (resultEl) {
       resultEl.style.display = 'none';
+    }
+  }
+
+  private showAnalysisPanel(correctModelId: string, selectedModelId: string, isCorrect: boolean): void {
+    const panel = this.container.querySelector('#model-analysis-panel') as HTMLElement;
+    if (!panel) return;
+
+    const desc = modelDescriptions[correctModelId];
+    if (!desc) return;
+
+    const nameEl = this.container.querySelector('#analysis-correct-name');
+    if (nameEl) nameEl.textContent = desc.name;
+
+    const featuresList = this.container.querySelector('#analysis-features');
+    if (featuresList) {
+      featuresList.innerHTML = '';
+      desc.shapeFeatures.forEach(f => {
+        const li = document.createElement('li');
+        li.textContent = f;
+        featuresList.appendChild(li);
+      });
+    }
+
+    const foldDescEl = this.container.querySelector('#analysis-fold-desc');
+    if (foldDescEl) foldDescEl.textContent = desc.foldCharacteristics;
+
+    const keyIdsEl = this.container.querySelector('#analysis-key-ids');
+    if (keyIdsEl) {
+      keyIdsEl.innerHTML = '';
+      desc.keyIdentifiers.forEach(k => {
+        const tag = document.createElement('span');
+        tag.className = 'key-id-tag';
+        tag.textContent = k;
+        keyIdsEl.appendChild(tag);
+      });
+    }
+
+    const comparisonSection = this.container.querySelector('#comparison-section') as HTMLElement;
+    if (comparisonSection) {
+      if (isCorrect) {
+        comparisonSection.style.display = 'none';
+      } else {
+        comparisonSection.style.display = 'block';
+        const comparison = modelComparisons[correctModelId]?.[selectedModelId];
+        const summaryEl = this.container.querySelector('#comparison-summary');
+        const diffListEl = this.container.querySelector('#comparison-diff-list');
+
+        const selectedDesc = modelDescriptions[selectedModelId];
+        const selectedName = selectedDesc ? selectedDesc.name : selectedModelId;
+
+        if (comparison) {
+          if (summaryEl) summaryEl.textContent = comparison.summary;
+          if (diffListEl) {
+            diffListEl.innerHTML = '';
+            comparison.differences.forEach(d => {
+              const li = document.createElement('li');
+              li.textContent = d;
+              diffListEl.appendChild(li);
+            });
+          }
+        } else {
+          if (summaryEl) summaryEl.textContent = `正确模型「${desc.name}」与你选择的「${selectedName}」在形状和折叠方式上有明显区别。`;
+          if (diffListEl) {
+            diffListEl.innerHTML = '';
+          }
+        }
+      }
+    }
+
+    panel.style.display = 'block';
+    panel.classList.add('analysis-enter');
+    setTimeout(() => panel.classList.remove('analysis-enter'), 400);
+  }
+
+  private hideAnalysisPanel(): void {
+    const panel = this.container.querySelector('#model-analysis-panel') as HTMLElement;
+    if (panel) {
+      panel.style.display = 'none';
     }
   }
 

@@ -364,6 +364,205 @@ body {
   color: #1565c0;
 }
 
+.model-analysis-panel {
+  margin: 0 32px 24px;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #e0e0e0;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.model-analysis-panel.analysis-enter {
+  animation: analysis-slide-in 0.35s ease-out;
+}
+
+@keyframes analysis-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.analysis-icon {
+  font-size: 18px;
+}
+
+.analysis-title {
+  font-size: 16px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.analysis-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.analysis-close-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.analysis-body {
+  padding: 20px;
+}
+
+.analysis-section {
+  margin-bottom: 20px;
+}
+
+.analysis-section:last-child {
+  margin-bottom: 0;
+}
+
+.analysis-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.correct-model-section .analysis-section-title {
+  color: #667eea;
+}
+
+.comparison-section {
+  background: #fff8e1;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #ffe082;
+}
+
+.comparison-section .analysis-section-title {
+  color: #e65100;
+  border-bottom-color: #ffe082;
+}
+
+.analysis-subsection {
+  margin-bottom: 14px;
+}
+
+.analysis-subsection:last-child {
+  margin-bottom: 0;
+}
+
+.analysis-subsection-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analysis-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.analysis-feature-list li {
+  position: relative;
+  padding: 6px 0 6px 22px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.analysis-feature-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.analysis-fold-desc {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.analysis-key-ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.key-id-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+  background: #eef0ff;
+  border-radius: 20px;
+  border: 1px solid #c5cae9;
+}
+
+.comparison-summary {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.comparison-diff-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.comparison-diff-list li {
+  position: relative;
+  padding: 8px 0 8px 24px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+  border-bottom: 1px dashed #ffe082;
+}
+
+.comparison-diff-list li:last-child {
+  border-bottom: none;
+}
+
+.comparison-diff-list li::before {
+  content: '⚡';
+  position: absolute;
+  left: 0;
+  font-size: 12px;
+}
+
 @media (max-width: 900px) {
   .game-main {
     grid-template-columns: 1fr;
